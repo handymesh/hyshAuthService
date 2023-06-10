@@ -18,12 +18,7 @@ services:
     depends_on:
     - mongo
     command: >
-      bash -c "mongoimport \
-                -h=mongo:27017 \
-                -d auth \
-                -c users \
-                --mode merge \
-                --file /initialState/user.json"
+      bash -c "mongoimport -h=mongo:27017 -d auth -c users --mode merge --file /initialState/user.json"
     volumes:
     - ./initialState:/initialState
 
