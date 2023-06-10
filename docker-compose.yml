@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+
+  mongo:
+    image: mongo:4.0-rc-xenial
+    container_name: mongo
+    restart: always
+    ports:
+    - "27017:27017"
+    volumes:
+    - /data/go-auth/mongodb:/data/db
+
+  mongo_initial_state:
+    image: mongo:4.0-rc-xenial
+    container_name: mongo_initial_state
+    restart: on-failure
+    depends_on:
+    - mongo
+    command: >
+      bash -c "mongoimport \
+                -h=mongo:27017 \
+                -d auth \
+                -c users \
+                --mode merge \
+                --file /initialState/user.json"
+    volumes:
+    - ./initialState:/initialState
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+    - "6379:6379"
+    volumes:
+    - /data/go-auth/redis:/data
+
+#   auth:
+#     build: .
+#     container_name: auth
+#     restart: always
+#     environment:
+#       PORT: 4070
+#       MONGO_URL: "mongo/auth"
+#       RECAPTCHA_PRIVATE_KEY: "secretKey"
+#       SMTP_USERNAME: "mailAddress"
+#       SMTP_PASSWORD: "secretPass"
+#       SMTP_SERVER: "smtp.gmail.com"
+#       SMTP_PORT: 465
+# #    ports:
+# #    - "4070:4070"
+#     depends_on:
+#     - mongo
+#     - mongo_initial_state
+#     volumes:
+#     - ./cert:/app/cert
+
+  opentracing:
+    image: jaegertracing/all-in-one:1.46.0
+    container_name: opentracing
+    restart: always
+    ports:
+    - "5775:5775/udp"
+    - "16686:16686"

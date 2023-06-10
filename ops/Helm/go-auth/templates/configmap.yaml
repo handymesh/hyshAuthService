@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "goAuth.fullname" . }}
+  labels:
+    app: {{ template "goAuth.name" . }}
+    chart: {{ template "goAuth.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ toYaml .Values.serverConfigFile | indent 2 }}
