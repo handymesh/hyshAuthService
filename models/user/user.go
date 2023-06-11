@@ -2,9 +2,11 @@ package userModel
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/handymesh/handy_authService/db/mongodb"
 	"github.com/handymesh/handy_authService/utils/crypto"
@@ -60,21 +62,30 @@ func FindCount(user User) (int64, error) {
 func Add(user User) (error, User) {
 	var checkUser User
 	checkUser.Email = user.Email
+
 	result, err := FindCount(checkUser)
+	if err != nil {
+		return err, user
+	}
+
 	if result > 0 {
+		err := errors.New(`{"mail":"need unique mail`)
+		fmt.Printf("our err is %v /n", user)
 		return err, user
 	}
 
 	user.Password, _ = crypto.HashPassword(user.Password)
+	fmt.Printf("User password %v", user.Password)
 	time := time.Now()
+	user.CreatedAt = &time
 	user.UpdatedAt = &time
 
 	res, err := mongodb.Session.Database("auth").Collection(CollectionUser).InsertOne(nil, user)
 	if err != nil {
-		return errors.New(`{"mail":"need uniq mail"}`), user
+		return errors.New(`{"mail":"need unique mail"}`), user
 	}
 
-	user.Id = res.InsertedID.(string)
+	user.Id = res.InsertedID.(primitive.ObjectID).Hex()
 
 	return nil, user
 }
