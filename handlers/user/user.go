@@ -3,18 +3,18 @@ package user
 import (
 	"encoding/json"
 	"errors"
-	"github.com/handymesh/handy_authService/middleware"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/handymesh/handy_authService/utils/crypto"
-
 	"github.com/go-chi/chi"
 	chiMiddleware "github.com/go-chi/chi/middleware"
-	"github.com/handymesh/handy_authService/models/user"
-	"github.com/handymesh/handy_authService/utils"
 	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
+
+	"github.com/handymesh/handy_authService/middleware"
+	userModel "github.com/handymesh/handy_authService/models/user"
+	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/handy_authService/utils/crypto"
 )
 
 var log = logrus.New()

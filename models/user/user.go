@@ -4,9 +4,10 @@ import (
 	"errors"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
+
 	"github.com/handymesh/handy_authService/db/mongodb"
 	"github.com/handymesh/handy_authService/utils/crypto"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
@@ -37,14 +38,13 @@ func Find(user User) (*[]User, error) {
 }
 
 func FindOne(user User) (*User, error) {
-	res := mongodb.Session.Database("auth").Collection(CollectionUser).FindOne(nil, user)
-	if res.Err() != nil {
-		return nil, res.Err()
+	var result *User
+	err := mongodb.Session.Database("auth").Collection(CollectionUser).FindOne(nil, user).Decode(&result)
+	if err != nil {
+		return nil, err
 	}
 
-	var us *User
-	res.Decode(us)
-	return us, nil
+	return result, nil
 }
 
 func FindCount(user User) (int64, error) {

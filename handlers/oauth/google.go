@@ -4,20 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/handymesh/handy_authService/handlers/session"
-	"github.com/handymesh/handy_authService/models/user"
-	"github.com/handymesh/handy_authService/utils"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 	"io/ioutil"
 	"net/http"
+
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+
+	"github.com/handymesh/handy_authService/handlers/session"
+	userModel "github.com/handymesh/handy_authService/models/user"
+	"github.com/handymesh/handy_authService/utils"
 )
 
 var (
 	// Get configuration
-	ClientID     = utils.Getenv("OAUTH_GOOGLE_CLIENT_ID", "YOUR_CLIENT_ID")
-	ClientSecret = utils.Getenv("OAUTH_GOOGLE_CLIENT_SECRET", "YOUR_CLIENT_SECRET")
-	RedirectURL  = utils.Getenv("OAUTH_REDIRECT_URL", "http://localhost:3000/auth/callback/:type")
+	ClientID     = utils.Getenv("OAUTH_GOOGLE_CLIENT_ID", "536260619966-qvj1s4407hv64ubirep7p17b4ogveje1.apps.googleusercontent.com")
+	ClientSecret = utils.Getenv("OAUTH_GOOGLE_CLIENT_SECRET", "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")
+	RedirectURL  = utils.Getenv("OAUTH_REDIRECT_URL", "http://localhost:3000/auth/callback/")
 
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  RedirectURL,

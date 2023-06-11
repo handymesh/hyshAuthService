@@ -2,12 +2,14 @@ package user
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
-	"github.com/handymesh/handy_authService/db/mongodb"
-	"github.com/handymesh/handy_authService/models/user"
-	"github.com/handymesh/handy_authService/utils"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/handymesh/handy_authService/db/mongodb"
+	userModel "github.com/handymesh/handy_authService/models/user"
+	"github.com/handymesh/handy_authService/utils"
 )
 
 func CheckUniqueUser(w http.ResponseWriter, user userModel.User) bool {
@@ -16,6 +18,8 @@ func CheckUniqueUser(w http.ResponseWriter, user userModel.User) bool {
 		utils.Error(w, errors.New(`"`+err.Error()+`"`))
 		return true
 	}
+
+	fmt.Printf("User %v count %v", bson.M{"mail": user.Email}, count)
 
 	if count > 0 {
 		w.WriteHeader(http.StatusBadRequest)

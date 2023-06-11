@@ -5,24 +5,23 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	// "go.mongodb.org/mongo-driver/bson"
 	"io/ioutil"
 	"net/http"
 
-	pb "github.com/handymesh/handy_authService/grpc/mail"
-	grpcServer "github.com/handymesh/handy_authService/grpc/server"
-	"github.com/handymesh/handy_authService/middleware"
-	"github.com/handymesh/handy_authService/utils/crypto"
-
+	// "go.mongodb.org/mongo-driver/bson"
 	"github.com/go-chi/chi"
 	chiMiddleware "github.com/go-chi/chi/middleware"
-	"github.com/handymesh/handy_authService/handlers/user"
-	"github.com/handymesh/handy_authService/models/session"
-	"github.com/handymesh/handy_authService/models/user"
-	"github.com/handymesh/handy_authService/utils"
 	"github.com/sirupsen/logrus"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	pb "github.com/handymesh/handy_authService/grpc/mail"
+	grpcServer "github.com/handymesh/handy_authService/grpc/server"
+	"github.com/handymesh/handy_authService/handlers/user"
+	"github.com/handymesh/handy_authService/middleware"
+	sessionModel "github.com/handymesh/handy_authService/models/session"
+	userModel "github.com/handymesh/handy_authService/models/user"
+	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/handy_authService/utils/crypto"
 )
 
 var log = logrus.New()
