@@ -8,10 +8,8 @@ RUN apk add --update ca-certificates git
 WORKDIR /go/src/github.com/handymesh/go_authService
 COPY . .
 # RUN dep ensure
-RUN go mod init github.com/handymesh/handy_authService && go mod tidy
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o go-auth cmd/go-auth/main.go
-
-RUN go build -o myapp
+RUN rm go.mod && go mod init github.com/handymesh/hyshAuthService && go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o authService cmd/authService/main.go
 
 FROM scratch
 
@@ -19,5 +17,5 @@ FROM scratch
 # USER 997
 
 WORKDIR /app/
-COPY --from=builder /go/src/github.com/handymesh/go_authService/go-auth .
-CMD ["./go-auth"]
+COPY --from=builder /go/src/github.com/handymesh/go_authService/authService .
+CMD ["./authService"]

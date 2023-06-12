@@ -3,13 +3,15 @@ package userModel
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/handymesh/handy_authService/db/mongodb"
-	"github.com/handymesh/handy_authService/utils/crypto"
+	"github.com/handymesh/hyshAuthService/db/mongodb"
+	"github.com/handymesh/hyshAuthService/utils/crypto"
 )
 
 const (
@@ -19,11 +21,24 @@ const (
 
 func List() (error, []User) {
 	var users []User
-	//err := mongodb.Session.Database("auth").Collection(CollectionUser).Find(nil).Sort("-updated_on").All(&users)
-	//cursor, err := mongodb.Session.Database("auth").Collection(CollectionUser).Find(nil, users)
-	//if err != nil {
-	//	return err, users
-	//}
+	opts := options.Find().SetSort(bson.D{{"created_at", 1}})
+	cursor, err := mongodb.Session.Database("auth").Collection(CollectionUser).Find(nil, bson.D{}, opts)
+	if err != nil {
+		return err, nil
+	}
+
+	defer cursor.Close(nil)
+
+	// Process the users retrieved from the database as needed
+	if err = cursor.All(nil, &users); err != nil {
+		log.Fatal(err)
+	}
+
+	for i := range users {
+		users[i].Password = ""
+		users[i].PasswordRetry = ""
+		users[i].RecoveryToken = ""
+	}
 
 	return nil, users
 }
@@ -93,12 +108,25 @@ func Add(user User) (error, User) {
 func Update(user *User) (*User, error) {
 	UpdatedAt := time.Now()
 	user.UpdatedAt = &UpdatedAt
-	user.Email = nil // prohibit changing address
+	user.Id = "" // prohibit changing address
 
-	filter := bson.D{{"_id", user.Id}}
-	_, err := mongodb.Session.Database("auth").Collection(CollectionUser).UpdateOne(nil, filter, user)
+	opts := options.Update().SetUpsert(false)
+	filter := User{Email: user.Email}
+	fmt.Println("User is", user)
+	update := bson.D{
+		{"$set", user},
+	}
+	result, err := mongodb.Session.Database("auth").Collection(CollectionUser).UpdateOne(nil, filter, update, opts)
 	if err != nil {
 		return nil, err
+	}
+	fmt.Println("result", result)
+
+	if result.MatchedCount != 0 {
+		fmt.Println("matched and replaced an existing document")
+	}
+	if result.UpsertedCount != 0 {
+		fmt.Printf("inserted a new document with ID %v\n", result.UpsertedID)
 	}
 
 	return user, nil

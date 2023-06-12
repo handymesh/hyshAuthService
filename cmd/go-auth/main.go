@@ -9,12 +9,12 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
-	"github.com/handymesh/handy_authService/db/mongodb"
-	"github.com/handymesh/handy_authService/db/redis"
-	"github.com/handymesh/handy_authService/handlers/oauth"
-	"github.com/handymesh/handy_authService/handlers/session"
-	"github.com/handymesh/handy_authService/handlers/user"
-	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/hyshAuthService/db/mongodb"
+	"github.com/handymesh/hyshAuthService/db/redis"
+	"github.com/handymesh/hyshAuthService/handlers/oauth"
+	"github.com/handymesh/hyshAuthService/handlers/session"
+	"github.com/handymesh/hyshAuthService/handlers/user"
+	"github.com/handymesh/hyshAuthService/utils"
 	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	"github.com/uber/jaeger-client-go"
@@ -54,7 +54,7 @@ func main() {
 		},
 	}
 	tracer, closer, _ := cfg.New(
-		"go-auth",
+		"authService",
 		config.Logger(jaeger.StdLogger),
 	)
 	opentracing.SetGlobalTracer(tracer)

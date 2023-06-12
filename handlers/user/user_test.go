@@ -8,9 +8,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/handymesh/handy_authService/db/mongodb"
-	"github.com/handymesh/handy_authService/db/redis"
-	"github.com/handymesh/handy_authService/models/user"
+	"github.com/handymesh/hyshAuthService/db/mongodb"
+	"github.com/handymesh/hyshAuthService/db/redis"
+	"github.com/handymesh/hyshAuthService/models/user"
 	"github.com/go-chi/chi"
 )
 

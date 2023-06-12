@@ -1,7 +1,7 @@
 package session
 
 import (
-	"github.com/handymesh/handy_authService/models/session"
+	"github.com/handymesh/hyshAuthService/models/session"
 	"time"
 )
 

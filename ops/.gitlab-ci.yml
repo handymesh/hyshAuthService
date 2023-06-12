@@ -46,7 +46,7 @@ variables:
   GITHUB_PATH: gitlab.com/batazor
   PROJECT_NAMESPACE: micro-company
   RELEASE_NAME: $CI_PROJECT_NAME
-  HELM_PATH: ops/Helm/go-auth
+  HELM_PATH: ops/Helm/authService
 
 stages:
 - best_practices
@@ -64,7 +64,7 @@ postman:
   before_script:
   - npm install -g newman
   script:
-  - newman run tests/go-auth.postman_collection.json -e tests/go-auth.postman_environment.json
+  - newman run tests/authService.postman_collection.json -e tests/authService.postman_environment.json
   only:
   - tags
   allow_failure: true

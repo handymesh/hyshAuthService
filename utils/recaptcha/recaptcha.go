@@ -3,7 +3,7 @@ package recaptcha
 import (
 	"encoding/json"
 	"errors"
-	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/hyshAuthService/utils"
 	"io/ioutil"
 	"net/http"
 	"net/url"

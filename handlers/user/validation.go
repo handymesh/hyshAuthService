@@ -7,9 +7,9 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/handymesh/handy_authService/db/mongodb"
-	userModel "github.com/handymesh/handy_authService/models/user"
-	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/hyshAuthService/db/mongodb"
+	userModel "github.com/handymesh/hyshAuthService/models/user"
+	"github.com/handymesh/hyshAuthService/utils"
 )
 
 func CheckUniqueUser(w http.ResponseWriter, user userModel.User) bool {

@@ -2,10 +2,12 @@ package mongodb
 
 import (
 	"context"
-	"github.com/handymesh/handy_authService/utils"
+
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"github.com/sirupsen/logrus"
+
+	"github.com/handymesh/hyshAuthService/utils"
 )
 
 var (
@@ -25,6 +27,7 @@ func init() {
 func ConnectToMongo() {
 	// Get configuration
 	MONGO_URL := utils.Getenv("MONGO_URL", "mongodb://localhost/auth")
+	log.Info("MONGO_URL", " ", MONGO_URL)
 	clientOptions := options.Client().ApplyURI(MONGO_URL)
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -36,7 +39,8 @@ func ConnectToMongo() {
 	// Check the connection
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.Panic("Fail connect to Mongo", err)
+		log.Error("Fail connect to Mongo")
+		log.Panic(err)
 	}
 
 	log.Info("Success connect to MongoDB")

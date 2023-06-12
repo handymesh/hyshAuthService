@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/hyshAuthService/utils"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )

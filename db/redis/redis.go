@@ -2,7 +2,7 @@ package redis
 
 import (
 	"github.com/go-redis/redis"
-	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/hyshAuthService/utils"
 	"github.com/sirupsen/logrus"
 )
 

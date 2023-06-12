@@ -9,7 +9,7 @@ services:
     ports:
     - "27017:27017"
     volumes:
-    - /data/go-auth/mongodb:/data/db
+    - /data/authService/mongodb:/data/db
 
   mongo_initial_state:
     image: mongo:4.0-rc-xenial
@@ -30,27 +30,27 @@ services:
     ports:
     - "6379:6379"
     volumes:
-    - /data/go-auth/redis:/data
+    - /data/authService/redis:/data
 
-#   auth:
-#     build: .
-#     container_name: auth
-#     restart: always
-#     environment:
-#       PORT: 4070
-#       MONGO_URL: "mongo/auth"
-#       RECAPTCHA_PRIVATE_KEY: "secretKey"
-#       SMTP_USERNAME: "mailAddress"
-#       SMTP_PASSWORD: "secretPass"
-#       SMTP_SERVER: "smtp.gmail.com"
-#       SMTP_PORT: 465
-# #    ports:
-# #    - "4070:4070"
-#     depends_on:
-#     - mongo
-#     - mongo_initial_state
-#     volumes:
-#     - ./cert:/app/cert
+  auth:
+    build: .
+    container_name: auth
+    restart: always
+    # environment:
+      # PORT: 4070
+      # MONGO_URL: "mongodb://localhost/auth"
+      # RECAPTCHA_PRIVATE_KEY: "secretKey"
+      # SMTP_USERNAME: "mailAddress"
+      # SMTP_PASSWORD: "secretPass"
+      # SMTP_SERVER: "smtp.gmail.com"
+      # SMTP_PORT: 465
+#    ports:
+#    - "4070:4070"
+    depends_on:
+    - mongo
+    - mongo_initial_state
+    volumes:
+    - ./cert:/app/cert
 
   opentracing:
     image: jaegertracing/all-in-one:1.46.0

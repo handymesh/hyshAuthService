@@ -10,9 +10,9 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 
-	"github.com/handymesh/handy_authService/handlers/session"
-	userModel "github.com/handymesh/handy_authService/models/user"
-	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/hyshAuthService/handlers/session"
+	userModel "github.com/handymesh/hyshAuthService/models/user"
+	"github.com/handymesh/hyshAuthService/utils"
 )
 
 var (

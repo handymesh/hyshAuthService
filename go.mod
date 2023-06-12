@@ -1,4 +1,4 @@
-module github.com/handymesh/handy_authService
+module github.com/handymesh/hyshAuthService
 
 go 1.20
 

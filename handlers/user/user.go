@@ -3,6 +3,7 @@ package user
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -11,10 +12,10 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 
-	"github.com/handymesh/handy_authService/middleware"
-	userModel "github.com/handymesh/handy_authService/models/user"
-	"github.com/handymesh/handy_authService/utils"
-	"github.com/handymesh/handy_authService/utils/crypto"
+	"github.com/handymesh/hyshAuthService/middleware"
+	userModel "github.com/handymesh/hyshAuthService/models/user"
+	"github.com/handymesh/hyshAuthService/utils"
+	"github.com/handymesh/hyshAuthService/utils/crypto"
 )
 
 var log = logrus.New()
@@ -130,6 +131,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var searchUser = userModel.User{Email: user.Email}
+	_, err = userModel.FindOne(searchUser)
+	if err != nil {
+		utils.Error(w, errors.New(`{"Id":"User not exists"}`))
+		return
+	}
+
 	user.Id = userId
 	user.Password, _ = crypto.HashPassword(user.Password)
 
@@ -155,7 +163,17 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	defer parent.Finish()
 
 	var userId = chi.URLParam(r, "userId")
-	_, err := userModel.Delete(userId)
+
+	fmt.Println("userID", userId)
+
+	var searchUser = userModel.User{Id: userId}
+	_, err := userModel.FindOne(searchUser)
+	if err != nil {
+		utils.Error(w, errors.New(`{"Id":"User not exists"}`))
+		return
+	}
+
+	_, err = userModel.Delete(userId)
 	if err != nil {
 		utils.Error(w, errors.New(`"`+err.Error()+`"`))
 		return

@@ -1,7 +1,7 @@
 {
 	"variables": [],
 	"info": {
-		"name": "go-auth",
+		"name": "authService",
 		"_postman_id": "bd6518ef-40a4-4283-e15c-aeaf3f60c6cb",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"

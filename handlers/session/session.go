@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -14,14 +15,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	pb "github.com/handymesh/handy_authService/grpc/mail"
-	grpcServer "github.com/handymesh/handy_authService/grpc/server"
-	"github.com/handymesh/handy_authService/handlers/user"
-	"github.com/handymesh/handy_authService/middleware"
-	sessionModel "github.com/handymesh/handy_authService/models/session"
-	userModel "github.com/handymesh/handy_authService/models/user"
-	"github.com/handymesh/handy_authService/utils"
-	"github.com/handymesh/handy_authService/utils/crypto"
+	pb "github.com/handymesh/hyshAuthService/grpc/mail"
+	grpcServer "github.com/handymesh/hyshAuthService/grpc/server"
+	"github.com/handymesh/hyshAuthService/handlers/user"
+	"github.com/handymesh/hyshAuthService/middleware"
+	sessionModel "github.com/handymesh/hyshAuthService/models/session"
+	userModel "github.com/handymesh/hyshAuthService/models/user"
+	"github.com/handymesh/hyshAuthService/utils"
+	"github.com/handymesh/hyshAuthService/utils/crypto"
 )
 
 var log = logrus.New()
@@ -91,12 +92,29 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Authorization", tokenString)
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`{
-		"tokens": {
-			"access": "` + tokenString + `",
-			"refresh": "` + refreshToken + `"
-		}
-	}`))
+
+	type UserOutput struct {
+		User struct {
+			ID     string `json:"Id"`
+			Email  string `json:"Email"`
+			Gender string `json:"Gender"`
+		} `json:"user"`
+		Tokens struct {
+			Access  string `json:"access"`
+			Refresh string `json:"refresh"`
+		} `json:"tokens"`
+	}
+
+	var userOutput UserOutput
+
+	userOutput.User.ID = user.Id
+	userOutput.User.Email = *user.Email
+	userOutput.User.Gender = user.Gender
+	userOutput.Tokens.Access = tokenString
+	userOutput.Tokens.Refresh = refreshToken
+
+	output, err := json.Marshal(userOutput)
+	w.Write(output)
 }
 
 func Registration(w http.ResponseWriter, r *http.Request) {
@@ -226,6 +244,7 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 		Url:      "http://localhost:3000/recovery/" + recoveryLink,
 	})
 	if err != nil {
+		fmt.Printf("error %v", err.Error())
 		utils.Error(w, errors.New("\"failed to send message\""))
 		return
 	}

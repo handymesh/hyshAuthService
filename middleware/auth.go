@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/handymesh/handy_authService/models/session"
-	"github.com/handymesh/handy_authService/utils"
+	"github.com/handymesh/hyshAuthService/models/session"
+	"github.com/handymesh/hyshAuthService/utils"
 )
 
 func CheckAuth(next http.Handler) http.Handler {

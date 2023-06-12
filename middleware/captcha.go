@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/handymesh/handy_authService/utils"
-	"github.com/handymesh/handy_authService/utils/recaptcha"
+	"github.com/handymesh/hyshAuthService/utils"
+	"github.com/handymesh/hyshAuthService/utils/recaptcha"
 )
 
 func Captcha(next http.Handler) http.Handler {

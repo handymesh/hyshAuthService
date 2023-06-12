@@ -2,7 +2,7 @@ package oauth
 
 import (
 	"github.com/go-chi/chi"
-	"github.com/handymesh/handy_authService/middleware"
+	"github.com/handymesh/hyshAuthService/middleware"
 	"github.com/sirupsen/logrus"
 )
 

@@ -2,7 +2,7 @@
 ##
 extraLabels:
 
-# Default values for go-auth.
+# Default values for authService.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 server:
@@ -12,7 +12,7 @@ server:
   terminationGracePeriodSeconds: 30
   podAnnotations: {}
   image:
-    repository: batazor/go-auth
+    repository: batazor/authService
     tag: latest
     ## Global imagePullPolicy
     ## Default: 'Always' if image tag is 'latest', else 'IfNotPresent'
@@ -20,7 +20,7 @@ server:
     imagePullPolicy: IfNotPresent
   env:
     PORT: 4070
-    MONGO_URL: "mongodb://go-auth-mongodb:27017/auth"
+    MONGO_URL: "mongodb://authService-mongodb:27017/auth"
   resources:
     limits:
       cpu: 500m

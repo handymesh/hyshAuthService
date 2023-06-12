@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
-	"github.com/handymesh/handy_authService/db/redis"
+	"github.com/handymesh/hyshAuthService/db/redis"
 )
 
 const (
