@@ -113,11 +113,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	userOutput.Tokens.Access = tokenString
 	userOutput.Tokens.Refresh = refreshToken
 
-	response := struct {
-		Data    UserOutput `json:"data"`
-		Status  int        `json:"status"`
-		Message string     `json:"message"`
-	}{
+	response := utils.ResponseType{
 		Data:    userOutput,
 		Status:  http.StatusOK,
 		Message: "Success",
@@ -178,8 +174,21 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	response := utils.ResponseType{
+		Data:    "",
+		Status:  http.StatusOK,
+		Message: "Success",
+	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{}`))
+	output, err := json.Marshal(response)
+	if err != nil {
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
+		return
+	}
+
+	w.Write(output)
+	return
 }
 
 func Refresh(w http.ResponseWriter, r *http.Request) {
@@ -208,13 +217,31 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Authorization", tokenString)
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`{
-		"tokens": {
-			"access": "` + tokenString + `",
-			"refresh": "` + refreshToken + `"
-		}
-	}`))
+	type Data struct {
+		Tokens struct {
+			Access  string `json:"access"`
+			Refresh string `json:"refresh"`
+		} `json:"tokens"`
+	}
+
+	var data Data
+	data.Tokens.Access = tokenString
+	data.Tokens.Refresh = refreshToken
+
+	response := utils.ResponseType{
+		Data:    data,
+		Status:  http.StatusCreated,
+		Message: "Success",
+	}
+
+	output, err := json.Marshal(response)
+	if err != nil {
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
+		return
+	}
+
+	w.Write(output)
+	return
 }
 
 func Recovery(w http.ResponseWriter, r *http.Request) {

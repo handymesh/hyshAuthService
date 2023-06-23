@@ -54,13 +54,21 @@ func List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(&users)
+	response := utils.ResponseType{
+		Data:    &users,
+		Status:  http.StatusOK,
+		Message: "Success",
+	}
+
+	w.WriteHeader(http.StatusOK)
+	output, err := json.Marshal(response)
 	if err != nil {
 		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
-	w.Write(res)
+	w.Write(output)
+	return
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
@@ -94,12 +102,18 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := struct {
-		Data    userModel.User `json:"data"`
-		Status  int            `json:"status"`
-		Message string         `json:"message"`
-	}{
-		Data:    user,
+	userResponse := userModel.UserResponse{
+		ID:        user.Id,
+		Email:     user.Email,
+		Gender:    user.Gender,
+		Fullname:  user.Fullname,
+		Profiles:  user.Profiles,
+		CreatedAt: *user.CreatedAt,
+		UpdatedAt: *user.UpdatedAt,
+	}
+
+	response := utils.ResponseType{
+		Data:    userResponse,
 		Status:  http.StatusCreated,
 		Message: "Success",
 	}

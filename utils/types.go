@@ -9,3 +9,9 @@ type StructuredLogger struct {
 type StructuredLoggerEntry struct {
 	Logger logrus.FieldLogger
 }
+
+type ResponseType struct {
+	Data    interface{} `json:"data"`
+	Status  int         `json:"status"`
+	Message string      `json:"message"`
+}

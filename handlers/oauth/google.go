@@ -40,8 +40,24 @@ func googleOAuth(w http.ResponseWriter, r *http.Request) {
 	// for the scopes specified above.
 	url := googleOauthConfig.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
+	data := struct {
+		URL string `json:"url"`
+	}{URL: url}
+	response := utils.ResponseType{
+		Data:    data,
+		Status:  http.StatusOK,
+		Message: "Success",
+	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"url": "` + url + `"}`))
+	output, err := json.Marshal(response)
+	if err != nil {
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
+		return
+	}
+
+	w.Write(output)
+	return
 }
 
 func googleCallback(w http.ResponseWriter, r *http.Request) {
