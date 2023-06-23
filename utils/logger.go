@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -20,15 +21,29 @@ func init() {
 }
 
 // Error handler
-func Error(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusBadRequest)
+func Error(w http.ResponseWriter, err error, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
 
-	err_str := `{
-		"error": ` + err.Error() + `
-	}`
+	type ErrorResponse struct {
+		Error struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		} `json:"error"`
+	}
 
-	w.Write([]byte(err_str))
-	return
+	response := ErrorResponse{
+		Error: struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		}{
+			Code:    statusCode,
+			Message: err.Error(),
+		},
+	}
+
+	output, _ := json.Marshal(response)
+	w.Write(output)
 }
 
 // StructuredLogger is a simple, but powerful implementation of a custom structured
@@ -68,7 +83,7 @@ func (l *StructuredLogger) NewLogEntry(r *http.Request) middleware.LogEntry {
 	return entry
 }
 
-func (l *StructuredLoggerEntry) Write(status int,  bytes int, header http.Header, elapsed time.Duration, extra interface{}) {
+func (l *StructuredLoggerEntry) Write(status int, bytes int, header http.Header, elapsed time.Duration, extra interface{}) {
 	l.Logger = l.Logger.WithFields(logrus.Fields{
 		"resp_status":       status,
 		"resp_bytes_length": bytes,

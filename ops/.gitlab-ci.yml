@@ -20,11 +20,7 @@
   variables:
     GIT_STRATEGY: none
   script:
-  - helm --kube-context $KUBE_CONTEXT upgrade $RELEASE_NAME $HELM_PATH
-    --install
-    --force
-    --wait
-    --namespace=$PROJECT_NAMESPACE;
+  - helm --kube-context $KUBE_CONTEXT upgrade $RELEASE_NAME $HELM_PATH --install --force --wait --namespace=$PROJECT_NAMESPACE;
   except:
   - branches
   when: manual
@@ -54,9 +50,9 @@ stages:
 - deploy
 
 before_script:
-  - mkdir -p /go/src/$GITHUB_PATH /go/src/_/builds
-  - cp -r $CI_PROJECT_DIR /go/src/$GITHUB_PATH/$CI_PROJECT_NAME
-  - ln -s /go/src/$GITHUB_PATH/$CI_PROJECT_NAME /go/src/_/builds/$CI_PROJECT_NAME
+- mkdir -p /go/src/$GITHUB_PATH /go/src/_/builds
+- cp -r $CI_PROJECT_DIR /go/src/$GITHUB_PATH/$CI_PROJECT_NAME
+- ln -s /go/src/$GITHUB_PATH/$CI_PROJECT_NAME /go/src/_/builds/$CI_PROJECT_NAME
 
 postman:
   type: best_practices
@@ -70,23 +66,23 @@ postman:
   allow_failure: true
 
 lint:
-  <<: *best_practices
+  !!merge <<: *best_practices
   script:
   - go get -u github.com/golang/lint/golint
   - golint -set_exit_status $(go list ./... | grep -v /vendor/)
 
 unit test:
-  <<: *best_practices
+  !!merge <<: *best_practices
   script:
   - go test -short $(go list ./... | grep -v /vendor/)
 
 data race:
-  <<: *best_practices
+  !!merge <<: *best_practices
   script:
   - go test -race -short $(go list ./... | grep -v /vendor/)
 
 build:staging:
-  <<: *job_build
+  !!merge <<: *job_build
   before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
   script:
@@ -96,7 +92,7 @@ build:staging:
   - /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)-rc(?:0|[1-9]\d*)$/
 
 deploy:staging:
-  <<: *job_deploy
+  !!merge <<: *job_deploy
   variables:
     KUBE_CONTEXT: staging
   environment:
@@ -106,7 +102,7 @@ deploy:staging:
   - /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)-rc(?:0|[1-9]\d*)$/
 
 build:production:
-  <<: *job_build
+  !!merge <<: *job_build
   before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
   script:
@@ -118,7 +114,7 @@ build:production:
   - /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.?(?:0|[1-9]\d*)?$/
 
 deploy:production:
-  <<: *job_deploy
+  !!merge <<: *job_deploy
   variables:
     KUBE_CONTEXT: production
   environment:

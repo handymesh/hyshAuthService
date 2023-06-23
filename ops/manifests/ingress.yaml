@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-2048-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  rules:
+  - host: api.handymesh.com
+    http:
+      paths:
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: hyshauthservice
+            port:
+              number: 4070
+      - path: /users
+        pathType: Prefix
+        backend:
+          service:
+            name: hyshauthservice
+            port:
+              number: 4070
+  # tls:
+  # - hosts:
+  #   - api.handymesh.com
+  #   secretName: tls-2048-kibana

@@ -1,0 +1,16 @@
+{{- if .Values.networkPolicy.enabled }}
+kind: NetworkPolicy
+apiVersion: {{ template "networkPolicy.apiVersion" . }}
+metadata:
+  name: {{ include "hyshauthservice.fullname" . }}
+  labels:
+    {{- include "hyshauthservice.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "hyshauthservice.selectorLabels" . | nindent 6 }}
+  ingress:
+    # Allow inbound connections
+    - ports:
+      - port: {{ .Values.service.port }}
+{{- end }}

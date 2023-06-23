@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/handymesh/hyshAuthService/models/session"
+	sessionModel "github.com/handymesh/hyshAuthService/models/session"
 	"github.com/handymesh/hyshAuthService/utils"
 )
 
@@ -15,14 +15,14 @@ func CheckAuth(next http.Handler) http.Handler {
 		var Authorization = r.Header.Get("Authorization")
 		if Authorization == "" {
 			w.WriteHeader(http.StatusUnauthorized)
-			utils.Error(w, errors.New(`"not auth"`))
+			utils.Error(w, errors.New(`"not auth"`), http.StatusBadRequest)
 			return
 		}
 
 		token, err := sessionModel.VerifyToken(Authorization)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			utils.Error(w, errors.New(`"`+err.Error()+`"`))
+			utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 			return
 		}
 
@@ -30,7 +30,7 @@ func CheckAuth(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
-			utils.Error(w, errors.New(`"token invalid"`))
+			utils.Error(w, errors.New(`"token invalid"`), http.StatusBadRequest)
 		}
 		return
 	})

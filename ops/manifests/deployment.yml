@@ -1,0 +1,132 @@
+#AKS deployment file
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hyshauthservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hyshauthservice
+  template:
+    metadata:
+      labels:
+        app: hyshauthservice
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: hyshauthservice
+        image: "570176851856.dkr.ecr.us-west-2.amazonaws.com/hysh-auth-service-dev"
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 1
+            memory: 300Mi
+          limits:
+            memory: 400Mi
+            cpu: 1.5
+        env:
+        - name: PORT
+          value: "4070"
+        - name: MONGO_URL
+          value: "mongodb://mongo-service:27017/auth"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379/1"
+          # - name: REDIS_URL
+          #   value: "redis://opentracing-service:6379/1"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:4.0-rc-xenial
+        # Other container configuration options (ports, resources, environment variables, etc.)
+        ports:
+        - containerPort: 27017
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opentracing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opentracing
+  template:
+    metadata:
+      labels:
+        app: opentracing
+    spec:
+      containers:
+      - name: opentracing
+        image: jaegertracing/all-in-one:1.46.0
+        # Other container configuration options (ports, resources, environment variables, etc.)
+        ports:
+        - containerPort: 5775
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        # Other container configuration options (ports, resources, environment variables, etc.)
+        ports:
+        - containerPort: 6379
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: null
+  name: hyshauthservice-hpa
+spec:
+  maxReplicas: 2
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hyshauthservice
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageValue: 500Mi
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50

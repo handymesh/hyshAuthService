@@ -58,14 +58,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	var user *userModel.User
 	err = json.Unmarshal(b, &user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -73,20 +73,20 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var searchUser = userModel.User{Email: user.Email}
 	user, err = userModel.FindOne(searchUser)
 	if err != nil {
-		utils.Error(w, errors.New(`{"mail":"incorrect mail or password"}`))
+		utils.Error(w, errors.New(`{"mail":"incorrect mail or password"}`), http.StatusBadRequest)
 		return
 	}
 
 	isErr := crypto.CheckPasswordHash(passwordUser, user.Password)
 	if !isErr {
-		utils.Error(w, errors.New(`{"mail":"incorrect mail or password"}`))
+		utils.Error(w, errors.New(`{"mail":"incorrect mail or password"}`), http.StatusBadRequest)
 		return
 	}
 
 	// Create JWT token
 	tokenString, refreshToken, err := CreateJWTToken()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -113,7 +113,22 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	userOutput.Tokens.Access = tokenString
 	userOutput.Tokens.Refresh = refreshToken
 
-	output, err := json.Marshal(userOutput)
+	response := struct {
+		Data    UserOutput `json:"data"`
+		Status  int        `json:"status"`
+		Message string     `json:"message"`
+	}{
+		Data:    userOutput,
+		Status:  http.StatusOK,
+		Message: "Success",
+	}
+
+	output, err := json.Marshal(response)
+	if err != nil {
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
+		return
+	}
+
 	w.Write(output)
 }
 
@@ -123,7 +138,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -139,27 +154,27 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	var Authorization = r.Header.Get("Authorization")
 	if Authorization == "" {
 		w.WriteHeader(http.StatusUnauthorized)
-		utils.Error(w, errors.New(`"not auth"`))
+		utils.Error(w, errors.New(`"not auth"`), http.StatusBadRequest)
 		return
 	}
 
 	token, err := sessionModel.VerifyToken(Authorization)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	if !token.Valid {
 		w.WriteHeader(http.StatusUnauthorized)
-		utils.Error(w, errors.New(`"token invalid"`))
+		utils.Error(w, errors.New(`"token invalid"`), http.StatusBadRequest)
 		return
 	}
 
 	err = sessionModel.Delete(Authorization)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -173,7 +188,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	var TOKEN_REFRESH = r.Header.Get("Authorization")
 	if TOKEN_REFRESH == "" {
 		w.WriteHeader(http.StatusUnauthorized)
-		utils.Error(w, errors.New(`"not auth"`))
+		utils.Error(w, errors.New(`"not auth"`), http.StatusBadRequest)
 		return
 	}
 
@@ -181,14 +196,14 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	status, err := sessionModel.CheckRefreshToken(TOKEN_REFRESH)
 	if err != nil || status != true {
 		w.WriteHeader(http.StatusUnauthorized)
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	// Create JWT token
 	tokenString, refreshToken, err := CreateJWTToken()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -208,14 +223,14 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	var user *userModel.User
 	err = json.Unmarshal(b, &user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -224,14 +239,14 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 	searchUser.Email = user.Email
 	user, err = userModel.FindOne(searchUser)
 	if err != nil {
-		utils.Error(w, errors.New(`{"mail":"incorrect mail"}`))
+		utils.Error(w, errors.New(`{"mail":"incorrect mail"}`), http.StatusBadRequest)
 		return
 	}
 
 	// get refresh token
 	recoveryLink, err := sessionModel.NewRecoveryLink(user.Id)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -245,7 +260,7 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		fmt.Printf("error %v", err.Error())
-		utils.Error(w, errors.New("\"failed to send message\""))
+		utils.Error(w, errors.New("\"failed to send message\""), http.StatusBadRequest)
 		return
 	}
 
@@ -259,26 +274,26 @@ func RecoveryByToken(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	var user *userModel.User
 	err = json.Unmarshal(b, &user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	// check correct a password
 	if user.Password != user.PasswordRetry {
-		utils.Error(w, errors.New(`{"retryPassword":"incorrect new password"}`))
+		utils.Error(w, errors.New(`{"retryPassword":"incorrect new password"}`), http.StatusBadRequest)
 		return
 	}
 
 	userId, _ := sessionModel.GetValueByKey(user.RecoveryToken)
 	if len(userId) == 0 {
-		utils.Error(w, errors.New(`"not found"`))
+		utils.Error(w, errors.New(`"not found"`), http.StatusBadRequest)
 		return
 	}
 
@@ -288,12 +303,12 @@ func RecoveryByToken(w http.ResponseWriter, r *http.Request) {
 
 	user, err = userModel.Update(user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 	err = sessionModel.Delete(user.RecoveryToken)
 	if err != nil {
-		utils.Error(w, errors.New("not found"))
+		utils.Error(w, errors.New("not found"), http.StatusBadRequest)
 		return
 	}
 	// TODO: Send mail (theme: New password)

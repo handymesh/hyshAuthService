@@ -50,13 +50,13 @@ func List(w http.ResponseWriter, r *http.Request) {
 
 	err, users := userModel.List()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	res, err := json.Marshal(&users)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -72,14 +72,14 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	var user userModel.User
 	err = json.Unmarshal(b, &user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -90,17 +90,26 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	err, user = userModel.Add(user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
-	output, err := json.Marshal(user)
+	response := struct {
+		Data    userModel.User `json:"data"`
+		Status  int            `json:"status"`
+		Message string         `json:"message"`
+	}{
+		Data:    user,
+		Status:  http.StatusCreated,
+		Message: "Success",
+	}
+
+	output, err := json.Marshal(response)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
 	w.Write(output)
 	return
 }
@@ -114,27 +123,27 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	var user *userModel.User
 	err = json.Unmarshal(b, &user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	var userId = chi.URLParam(r, "userId")
 	if len(userId) != 24 {
-		utils.Error(w, errors.New("not correct user id"))
+		utils.Error(w, errors.New("not correct user id"), http.StatusBadRequest)
 		return
 	}
 
 	var searchUser = userModel.User{Email: user.Email}
 	_, err = userModel.FindOne(searchUser)
 	if err != nil {
-		utils.Error(w, errors.New(`{"Id":"User not exists"}`))
+		utils.Error(w, errors.New(`{"Id":"User not exists"}`), http.StatusBadRequest)
 		return
 	}
 
@@ -143,13 +152,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 	user, err = userModel.Update(user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	output, err := json.Marshal(&user)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -169,13 +178,13 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	var searchUser = userModel.User{Id: userId}
 	_, err := userModel.FindOne(searchUser)
 	if err != nil {
-		utils.Error(w, errors.New(`{"Id":"User not exists"}`))
+		utils.Error(w, errors.New(`{"Id":"User not exists"}`), http.StatusBadRequest)
 		return
 	}
 
 	_, err = userModel.Delete(userId)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 

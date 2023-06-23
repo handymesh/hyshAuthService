@@ -50,20 +50,20 @@ func googleCallback(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	var oauthCallback Callback
 	err = json.Unmarshal(b, &oauthCallback)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
 	token, err := googleOauthConfig.Exchange(context.Background(), oauthCallback.Code)
 	if err != nil {
-		utils.Error(w, errors.New("\"cannot fetch token\""))
+		utils.Error(w, errors.New("\"cannot fetch token\""), http.StatusBadRequest)
 		return
 	}
 
@@ -75,7 +75,7 @@ func googleCallback(w http.ResponseWriter, r *http.Request) {
 	var userGoogle UserGoogle
 	err = json.Unmarshal(contents, &userGoogle)
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 
@@ -89,7 +89,7 @@ func googleCallback(w http.ResponseWriter, r *http.Request) {
 	// Create JWT token
 	tokenString, refreshToken, err := session.CreateJWTToken()
 	if err != nil {
-		utils.Error(w, errors.New(`"`+err.Error()+`"`))
+		utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 		return
 	}
 

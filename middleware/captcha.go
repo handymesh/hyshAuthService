@@ -24,13 +24,13 @@ func Captcha(next http.Handler) http.Handler {
 		b, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
-			utils.Error(w, errors.New(`"`+err.Error()+`"`))
+			utils.Error(w, errors.New(`"`+err.Error()+`"`), http.StatusBadRequest)
 			return
 		}
 
 		err = recaptcha.VerifyCaptcha(b)
 		if err != nil {
-			utils.Error(w, errors.New(`{"captcha":`+err.Error()+`}`))
+			utils.Error(w, errors.New(`{"captcha":`+err.Error()+`}`), http.StatusBadRequest)
 			return
 		}
 

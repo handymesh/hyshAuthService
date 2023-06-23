@@ -2,8 +2,9 @@ package redis
 
 import (
 	"github.com/go-redis/redis"
-	"github.com/handymesh/hyshAuthService/utils"
 	"github.com/sirupsen/logrus"
+
+	"github.com/handymesh/hyshAuthService/utils"
 )
 
 var (
@@ -23,6 +24,7 @@ func init() {
 func ConnectToRedis() {
 	// Get configuration
 	REDIS_URL := utils.Getenv("REDIS_URL", "redis://localhost:6379/1")
+	log.Info("REDIS_URL", " ", REDIS_URL)
 	opt, err := redis.ParseURL(REDIS_URL)
 	if err != nil {
 		panic(err)
