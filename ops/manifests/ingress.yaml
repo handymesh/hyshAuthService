@@ -1,13 +1,15 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nginx-2048-ingress
+  name: hysh-nginx-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
     # cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
-  - host: api.handymesh.com
+  - host: a14ec209f0dd64c56bbdd6a223cf35a6-2137114308.us-west-2.elb.amazonaws.com
     http:
       paths:
       - path: /auth
